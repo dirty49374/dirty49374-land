@@ -2,6 +2,8 @@ import Cors from 'micro-cors';
 import { gql, ApolloServer } from 'apollo-server-micro';
 import { BlogModel } from './_lib/models/blog';
 import dbConnect from '@/lib/dbConnect';
+import { GraphQLDateTime } from 'graphql-scalars';
+import { GraphQLDate } from 'graphql-scalars';
 
 export const config = {
   api: {
@@ -10,10 +12,13 @@ export const config = {
 };
 
 const typeDefs = gql`
+  scalar DateTime
+  scalar Date
+
   type Blog {
     id: ID
     title: String
-    publishedAt: String
+    publishedAt: DateTime
     content: String
   }
 
@@ -27,6 +32,8 @@ const typeDefs = gql`
 `;
 
 const resolvers = {
+  DateTime: GraphQLDateTime,
+  Date: GraphQLDate,
   Query: {
     blogs: async () => {
       await dbConnect();

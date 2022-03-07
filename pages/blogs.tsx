@@ -5,6 +5,7 @@ import { Blog } from '@/lib/graphql-types';
 import ClientOnly from "../components/clientOnly";
 import Link from "next/link";
 import { blogsQuery } from "@/lib/queries";
+import Moment from "react-moment";
 
 const Blogs = () => {
   const query = useQuery(blogsQuery);
@@ -15,7 +16,10 @@ const Blogs = () => {
       {query.data?.blogs.map((p: Blog, n: number) =>
         <div className="mb-10" key={n}>
           <h1 className="py-3 underline">{p.title}</h1>
-          <div>
+          <div className="py-1">
+            <Moment className="text-xs" format="YYYY/MM/DD HH:MI:SS" date={p.publishedAt} />
+          </div>
+          <div className="py-3">
             {p.content}
           </div>
         </div>

@@ -1,0 +1,4 @@
+{
+  "imports": ["import Stripe from \"stripe\""],
+  "output": "./lib/mongoose-types.ts"
+}

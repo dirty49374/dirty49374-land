@@ -6,31 +6,29 @@ import ClientOnly from "../components/clientOnly";
 import Link from "next/link";
 import { blogsQuery } from "@/lib/queries";
 import Moment from "react-moment";
+import { FC } from "react";
+import BlogView from "@/components/blogView";
+
 
 const Blogs = () => {
   const query = useQuery(blogsQuery);
   if (query.loading) return <div>loading...</div>;
 
   return (
-    <div className="blog container">
+    <>
       {query.data?.blogs.map((p: Blog, n: number) =>
-        <div className="mb-10" key={n}>
-          <h1 className="py-3 underline">{p.title}</h1>
-          <div className="py-1">
-            <Moment className="text-xs" format="YYYY/MM/DD HH:MI:SS" date={p.publishedAt} />
-          </div>
-          <div className="py-3">
-            {p.content}
-          </div>
-        </div>
+        <>
+          <BlogView key={n} blog={p} />
+          <hr className="hr my-4 w-96 mx-auto" />
+        </>
       )}
-    </div>
+    </>
   )
 }
 
-const Blog: NextPage = () => {
+const BlogPage: NextPage = () => {
   return (
-    <div className="blog container">
+    <div className="blog-page">
       <div className="text-right">
         <span className="btn">
           <Link href="/blogs/post">post</Link>
@@ -43,4 +41,4 @@ const Blog: NextPage = () => {
   )
 };
 
-export default Blog;
+export default BlogPage;

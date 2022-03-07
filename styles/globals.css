@@ -3,25 +3,33 @@
 @tailwind utilities;
 
 @layer utilities {
-  .container {
-    @apply max-w-5xl mx-auto min-h-full p-5;
+  .blog-page {
+    @apply max-w-4xl mx-auto min-h-full w-full p-5;
   }
 
-  .blog h1 {
+
+  .h1 {
     @apply text-2xl font-serif;
   }
 
-  .blog input {
+  .input {
     @apply text-black px-1;
   }
-  .blog textarea {
+  .textarea {
     @apply text-black px-1;
   }
 
   .btn {
     @apply rounded text-base uppercase
     bg-orange-800 hover:bg-orange-900 px-2 py-1
-    cursor-pointer
-    ;
+    cursor-pointer;
   }
+
+  .hr {
+    @apply h-[1px] border-0 bg-gray-700;
+  }
+}
+
+body {
+  @apply bg-slate-800;
 }

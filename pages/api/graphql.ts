@@ -37,7 +37,7 @@ const resolvers = {
   Query: {
     blogs: async () => {
       await dbConnect();
-      return await BlogModel.find({});
+      return await BlogModel.find({}).sort({ publishedAt: -1 });
     },
   },
   Mutation: {

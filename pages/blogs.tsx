@@ -10,8 +10,6 @@ const Blogs = () => {
   const query = useQuery(blogsQuery);
   if (query.loading) return <div>loading...</div>;
 
-  console.log(query);
-
   return (
     <div className="blog container">
       {query.data?.blogs.map((p: Blog, n: number) =>

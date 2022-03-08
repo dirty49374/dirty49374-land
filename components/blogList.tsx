@@ -21,21 +21,21 @@ const BlogList = ({ blogs }: BlogListProps) => {
     if (pageNo === 2) {
       return <Link href='/blogs'>&lt;&lt; PREV</Link>;
     }
-    return <Link href={`/blogs?page=${pageNo - 1}&before=${blogs.edges[0]?.cursor}`}>&lt;&lt; PREV</Link>;
+    return <Link href={`/blogs?page=${pageNo - 1}&before=${blogs.edges?.[0]?.cursor}`}>&lt;&lt; PREV</Link>;
   }
 
   const NextPage = () => {
     if (blogs?.pageInfo.hasNextPage) {
-      return <Link href={`/blogs?page=${pageNo + 1}&after=${blogs.edges[blogs.edges.length - 1]?.cursor}`}>NEXT &gt;&gt;</Link>;
+      return <Link href={`/blogs?page=${pageNo + 1}&after=${blogs.edges?.[blogs.edges.length - 1]?.cursor}`}>NEXT &gt;&gt;</Link>;
     }
     return <></>;
   }
 
   return (
     <>
-      {blogs?.edges?.map((e, n) =>
+      {blogs.edges?.map((e, n) =>
         <Fragment key={n}>
-          <BlogView blog={e.node} />
+          <BlogView blog={e.node as any} />
           <hr className="hr my-4 w-96 mx-auto" />
         </Fragment>
       )}

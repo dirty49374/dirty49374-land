@@ -1,11 +1,12 @@
 import { FC, useState } from "react";
 import Moment from "react-moment";
-import { Blog, useDislikeBlogMutation, useLikeBlogMutation, usePostCommentMutation } from "@/lib/generated/graphql";
+import { Blog, BlogsQuery, useDislikeBlogMutation, useLikeBlogMutation, usePostCommentMutation } from "@/lib/generated/graphql";
 import { ReplyIcon, ThumbDownIcon, ThumbUpIcon } from '@heroicons/react/solid';
 import MarkdownView from "./markdownView";
 import FlatIconButton from "./flatIconButton";
 import Link from "next/link";
 import { defaultTimeFormat } from "@/lib/const";
+import { ApolloQueryResult } from "@apollo/client";
 
 type CommentFormProps = {
   blogId: string;

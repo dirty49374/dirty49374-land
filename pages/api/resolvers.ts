@@ -21,7 +21,7 @@ type PaginationArgs = {
 }
 type Paged<T> = {
   edges: {
-    cursor?: string;
+    cursor: string;
     node: T;
   }[];
   pageInfo: PageInfo;

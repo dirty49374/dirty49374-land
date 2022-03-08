@@ -1,5 +1,4 @@
 import client from "@/lib/apollo-client";
-import { blogsQuery, postQuery } from "@/lib/queries";
 import { gql, useMutation } from "@apollo/client";
 import { NextPage } from "next";
 import Router from "next/router";
@@ -7,37 +6,21 @@ import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import {dark} from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { GetBlogsDocument, usePostBlogMutation } from "@/lib/generated/graphql";
 
 const BlogPostPage: NextPage = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [post, { loading, error }] = useMutation(postQuery);
+  const [post, { loading, error }] = usePostBlogMutation();
 
   const handlePost = () => {
     post({
       variables: { title, content },
-      refetchQueries: [{ query: blogsQuery }],
+      refetchQueries: [{ query: GetBlogsDocument }],
     })
       .then(() => Router.push("/blogs"))
       .catch(e => console.error("XXX", e));
   }
-
-  const blogEdit = (
-    <>
-    </>
-  );
-
-  const blogPreview = (
-    <>
-      <div className="prose prose-invert">
-        <h2>{title}</h2>
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {content}
-        </ReactMarkdown>
-      </div>
-    </>
-  );
 
   return (
     <div className="container flex-1">

@@ -1,55 +1,11 @@
 import Cors from 'micro-cors';
-import { gql, ApolloServer } from 'apollo-server-micro';
-import { BlogModel } from './_lib/models/blog';
-import dbConnect from '@/lib/dbConnect';
-import { GraphQLDateTime } from 'graphql-scalars';
-import { GraphQLDate } from 'graphql-scalars';
+import { ApolloServer } from 'apollo-server-micro';
+import { typeDefs } from './typeDefs';
+import { resolvers } from './resolvers';
 
 export const config = {
   api: {
     bodyParser: false
-  }
-};
-
-const typeDefs = gql`
-  scalar DateTime
-  scalar Date
-
-  type Blog {
-    id: ID
-    title: String
-    publishedAt: DateTime
-    content: String
-  }
-
-  type Query {
-    blogs: [Blog]
-  }
-
-  type Mutation {
-    postBlog(title: String, content: String): Blog
-  }
-`;
-
-const resolvers = {
-  DateTime: GraphQLDateTime,
-  Date: GraphQLDate,
-  Query: {
-    blogs: async () => {
-      await dbConnect();
-      return await BlogModel.find({}).sort({ publishedAt: -1 });
-    },
-  },
-  Mutation: {
-    postBlog: async (parent: any, args: any) => {
-      await dbConnect();
-      const blog = new BlogModel({
-        title: args.title,
-        publishedAt: Date.now(),
-        content: args.content,
-      });
-      return await blog.save();
-    }
   }
 };
 
@@ -65,7 +21,6 @@ const apolloServer = new ApolloServer({
   // playground: true,
   debug: true,
 });
-
 
 const serversStart = apolloServer.start();
 

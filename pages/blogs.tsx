@@ -1,32 +1,12 @@
-import { gql } from "apollo-boost";
-import { NextPage } from "next";
-import { useQuery } from "@apollo/client";
-import { Blog } from '@/lib/graphql-types';
-import ClientOnly from "../components/clientOnly";
+import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import Link from "next/link";
-import { blogsQuery } from "@/lib/queries";
-import Moment from "react-moment";
-import { FC } from "react";
-import BlogView from "@/components/blogView";
+import { GetBlogsDocument, GetBlogsQuery, GetBlogsQueryVariables } from "@/lib/generated/graphql";
+import client from "@/lib/apollo-client";
+import BlogList from "@/components/blogList";
+import { parsePaginationVariables } from "@/lib/parsePaginationParams";
 
 
-const Blogs = () => {
-  const query = useQuery(blogsQuery);
-  if (query.loading) return <div>loading...</div>;
-
-  return (
-    <>
-      {query.data?.blogs.map((p: Blog, n: number) =>
-        <>
-          <BlogView key={n} blog={p} />
-          <hr className="hr my-4 w-96 mx-auto" />
-        </>
-      )}
-    </>
-  )
-}
-
-const BlogPage: NextPage = () => {
+const BlogPage = ({ getBlogsResult }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   return (
     <div className="blog-page">
       <div className="text-right">
@@ -34,11 +14,22 @@ const BlogPage: NextPage = () => {
           <Link href="/blogs/post">post</Link>
         </span>
       </div>
-      <ClientOnly>
-        <Blogs />
-      </ClientOnly>
+      <BlogList getBlogsResult={getBlogsResult} />
     </div>
   )
 };
 
 export default BlogPage;
+
+export const getServerSideProps = async (context: GetServerSidePropsContext) => {
+  const getBlogsResult = await client.query<GetBlogsQuery, GetBlogsQueryVariables>({
+    query: GetBlogsDocument,
+    variables: parsePaginationVariables(context.query, 5),
+  });
+
+  return {
+    props: {
+      getBlogsResult
+    },
+  }
+}

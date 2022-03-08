@@ -1,10 +1,10 @@
-import { Blog } from "@/lib/graphql-types";
 import { FC } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from 'remark-gfm';
 import Moment from "react-moment";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { Blog } from "@/lib/generated/graphql";
 
 type BlogViewProps = {
   blog: Blog;

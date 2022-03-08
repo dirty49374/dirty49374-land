@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import { MongoClient } from "mongodb";
 
 const MONGODB_URI = process.env.MONGODB_URI;
 if (!MONGODB_URI) {
@@ -7,9 +7,14 @@ if (!MONGODB_URI) {
   )
 }
 
-let cached = global.mongoose;
+export type MongoGlobal = {
+  conn?: MongoClient;
+  promise?: Promise<MongoClient>;
+};
+
+let cached: MongoGlobal = (global as any).mongo;
 if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null }
+  cached = (global as any).mongo = {};
 }
 
 async function dbConnect() {
@@ -18,10 +23,8 @@ async function dbConnect() {
   }
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI!)
-      .then(mongoose => {
-        return mongoose
-      });
+    const mongo = new MongoClient(MONGODB_URI!);
+    cached.promise = mongo.connect().then(() => mongo);
   }
 
   cached.conn = await cached.promise;

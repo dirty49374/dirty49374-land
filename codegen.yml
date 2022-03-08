@@ -1,0 +1,27 @@
+overwrite: true
+schema: "pages/api/typeDefs.ts"
+documents:
+  - "lib/**/*.graphql"
+  - "pages/**/*.graphql"
+generates:
+  lib/generated/graphql.ts:
+    config:
+      useIndexSignature: true
+      scalars:
+        Date: string
+        DateTime: string
+    plugins:
+      - typescript
+      - typescript-resolvers
+      - typescript-operations
+      - typescript-react-apollo
+  # lib/generated/mongo.ts:
+  #   plugins:
+  #     - typescript-mongodb
+  src/generated/graphql-mongo.tsx:
+    plugins:
+      - typescript
+      - typescript-mongodb
+  ./graphql.schema.json:
+    plugins:
+      - "introspection"

@@ -1,5 +1,5 @@
 overwrite: true
-schema: "pages/api/typeDefs.ts"
+schema: "pages/api/graphql-schema.ts"
 documents:
   - "lib/**/*.graphql"
   - "pages/**/*.graphql"
@@ -18,10 +18,10 @@ generates:
   # lib/generated/mongo.ts:
   #   plugins:
   #     - typescript-mongodb
-  src/generated/graphql-mongo.tsx:
-    plugins:
-      - typescript
-      - typescript-mongodb
-  ./graphql.schema.json:
-    plugins:
-      - "introspection"
+  # src/generated/graphql-mongo.tsx:
+  #   plugins:
+  #     - typescript
+  #     - typescript-mongodb
+  # ./graphql.schema.json:
+  #   plugins:
+  #     - "introspection"

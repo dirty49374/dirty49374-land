@@ -32,3 +32,8 @@ async function dbConnect() {
 }
 
 export default dbConnect
+
+export const dbCollection = async (db: string, collection: string) => {
+  const mongo = await dbConnect();
+  return mongo.db(db).collection(collection);
+}

@@ -1,5 +1,5 @@
-import dbConnect from "@/lib/dbConnect";
-import { Blog, Maybe, PageInfo, Resolvers } from "@/lib/generated/graphql";
+import dbConnect, { dbCollection } from "@/lib/dbConnect";
+import { Blog, Comment, Maybe, PageInfo, Resolvers } from "@/lib/generated/graphql";
 import { GraphQLDateTime, GraphQLDate } from "graphql-scalars";
 import { Document, Collection, ObjectId } from "mongodb";
 
@@ -19,35 +19,37 @@ type PaginationArgs = {
   after?: Maybe<string>;
   before?: Maybe<string>;
 }
-type Paged<T> = {
+type PaginationResult<T> = {
   edges: {
     cursor: string;
     node: T;
   }[];
+  nodes: T[];
   pageInfo: PageInfo;
 };
 
 async function pagination<T>(
   collection: Collection<Document>,
-  { first, last, after, before }: PaginationArgs
-): Promise<Paged<T>> {
-
+  { first, last, after, before }: PaginationArgs,
+  filter: any = {},
+): Promise<PaginationResult<T>> {
   const order = first ? -1 : 1;
   const count = (first ? first : last) || 0;
-  const filter = first
+  let filter_ = first
     ? (after ? { _id: { $lt: new ObjectId(after) } } : {})
     : (before ? { _id: { $gt: new ObjectId(before) } } : {});
+  filter = { ...filter, ...filter_ };
 
   const cursor = collection
     .find<T>(filter)
     .sort({ _id: order })
     .limit(count);
-  const blogs = await cursor.toArray();
-  fixIds(blogs);
+  const nodes = await cursor.toArray();
+  fixIds(nodes);
 
-  const edges = blogs.map(blog => ({
-    cursor: (blog as any).id,
-    node: blog
+  const edges = nodes.map(node => ({
+    cursor: (node as any).id,
+    node
   }));
   if (order === 1) {
     edges.reverse();
@@ -58,56 +60,29 @@ async function pagination<T>(
       : edges[0]?.cursor,
     hasNextPage: edges.length === count,
   };
-  return { pageInfo, edges };
+  return { pageInfo, edges, nodes };
 }
 
 export const resolvers: Resolvers = {
   DateTime: GraphQLDateTime,
   Date: GraphQLDate,
   Query: {
-    // blogs: async () => {
-    //   const client = await dbConnect();
-
-    //   const collection = client.db('blogs').collection('blogs');
-    //   const cursor = await collection.find<Blog>({})
-    //     .sort({ _id: -1 });
-    //   const result = await cursor.toArray();
-    //   fixIds(result);
-
-    //   return result;
-    // },
-    getBlogs: async (_, args) => {
-      const client = await dbConnect();
-      const collection = client.db('blogs').collection('blogs');
-
-      return await pagination(collection, args);
-      // const order = first ? -1 : 1;
-      // const count = (first ? first : last) || 0;
-      // const filter = first
-      //   ? (after ? { _id: { $lt: new ObjectId(after) } } : {})
-      //   : (before ? { _id: { $gt: new ObjectId(before) } } : {});
-
-      // const cursor = collection
-      //   .find<Blog>(filter)
-      //   .sort({ _id: order })
-      //   .limit(count);
-      // const blogs = await cursor.toArray();
-      // fixIds(blogs);
-
-      // const edges = blogs.map(blog => ({
-      //   cursor: blog.id,
-      //   node: blog
-      // }));
-      // if (order === 1) {
-      //   edges.reverse();
-      // }
-      // const pageInfo = {
-      //   cursor: order === -1
-      //     ? edges[edges.length - 1]?.cursor
-      //     : edges[0]?.cursor,
-      //   hasNextPage: edges.length < count,
-      // };
-      // return { pageInfo, edges };
+    blog: async (_, args) => {
+      const blogs = await dbCollection('blogs', 'blogs');
+      const blog = await blogs.findOne<Blog>({ title: args.title });
+      return blog;
+    },
+    blogs: async (_, args) => {
+      const blogs = await dbCollection('blogs', 'blogs');
+      return await pagination(blogs, args);
+    },
+  },
+  Blog: {
+    comments: async (parent, args) => {
+      const comments = await dbCollection('blogs', 'comments');
+      return await pagination(comments, args, {
+        blogId: new ObjectId(parent.id!)
+      })
     }
   },
   Mutation: {
@@ -119,13 +94,41 @@ export const resolvers: Resolvers = {
         content: args.content,
       };
 
-      const client = await dbConnect();
-      const collection = client.db('blogs').collection('blogs');
-      const rst = await collection.insertOne(blog);
-      console.log(rst);
-
+      const blogs = await dbCollection('blogs', 'blogs');
+      const rst = await blogs.insertOne(blog);
       blog.id = rst.insertedId.toString();
+
       return blog;
+    },
+    likeBlog: async (parent, args) => {
+      const blogs = await dbCollection('blogs', 'blogs');
+      const result = await blogs.updateOne(
+        { _id: new ObjectId(args.id) },
+        { $inc: { likes: 1 } }
+      );
+
+      return result.modifiedCount;
+    },
+    dislikeBlog: async (parent, args) => {
+      const blogs = await dbCollection('blogs', 'blogs');
+      const result = await blogs.updateOne(
+        { _id: new ObjectId(args.id) },
+        { $inc: { dislikes: 1 } }
+      );
+
+      return result.modifiedCount;
+    },
+    postComment: async (parent, args) => {
+      const comments = await dbCollection('blogs', 'comments');
+      const comment: Comment = {
+        blogId: new ObjectId(args.blogId) as any,
+        publishedAt: new Date().toISOString(),
+        comment: args.comment,
+      };
+      const result = await comments.insertOne(comment);
+      comment.id = result.insertedId.toString();
+
+      return comment;
     }
   }
 };

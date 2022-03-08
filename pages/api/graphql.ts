@@ -1,6 +1,6 @@
 import Cors from 'micro-cors';
 import { ApolloServer } from 'apollo-server-micro';
-import { typeDefs } from './typeDefs';
+import { typeDefs } from './graphql-schema';
 import { resolvers } from './resolvers';
 
 export const config = {
@@ -11,6 +11,30 @@ export const config = {
 
 const cors = Cors();
 
+const BASIC_LOGGING: any = {
+  requestDidStart(requestContext: any) {
+    const query = requestContext.request.query;
+    if (query.includes("IntrospectionQuery")) return;
+
+    console.log('QUERY: ', requestContext.request.query.split("\n")[0]);
+    console.log('        args:', requestContext.request.variables);
+    return {
+      didEncounterErrors(requestContext: any) {
+        console.log('an error happened in response to query ' + requestContext.request.query);
+        console.log(requestContext.errors);
+      }
+    };
+  },
+
+  willSendResponse(requestContext: any) {
+    // console.log("response sent", requestContext.response);
+  }
+};
+
+const plugins = process.env.NODE_ENV !== 'production'
+  ? [BASIC_LOGGING]
+  : [];
+
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
@@ -20,6 +44,7 @@ const apolloServer = new ApolloServer({
   introspection: true,
   // playground: true,
   debug: true,
+  plugins,
 });
 
 const serversStart = apolloServer.start();

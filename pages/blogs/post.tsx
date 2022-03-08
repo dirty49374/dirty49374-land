@@ -6,7 +6,7 @@ import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { GetBlogsDocument, usePostBlogMutation } from "@/lib/generated/graphql";
+import { BlogsDocument, usePostBlogMutation } from "@/lib/generated/graphql";
 
 const BlogPostPage: NextPage = () => {
   const [title, setTitle] = useState('');
@@ -16,7 +16,7 @@ const BlogPostPage: NextPage = () => {
   const handlePost = () => {
     post({
       variables: { title, content },
-      refetchQueries: [{ query: GetBlogsDocument }],
+      refetchQueries: [{ query: BlogsDocument }],
     })
       .then(() => Router.push("/blogs"))
       .catch(e => console.error("XXX", e));

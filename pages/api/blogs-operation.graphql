@@ -1,0 +1,74 @@
+query blogs($first: Int, $after: String, $last: Int, $before: String) {
+  blogs(first: $first, after: $after, last: $last, before: $before) {
+    edges {
+      cursor
+      node {
+        id
+        title
+        publishedAt
+        content
+        likes
+        dislikes
+        comments(first: 2) {
+          nodes {
+            id
+            comment
+            publishedAt
+          }
+          pageInfo {
+            cursor
+            hasNextPage
+          }
+        }
+      }
+    } 
+    pageInfo {
+      cursor
+      hasNextPage
+    }
+  }
+}
+
+query blog($title: String!) {
+  blog(title: $title) {
+    id
+    title
+    publishedAt
+    content
+    likes
+    dislikes
+    comments(first: 5) {
+      nodes {
+        id
+        comment
+        publishedAt
+      }
+      pageInfo {
+        cursor
+        hasNextPage
+      }
+    }
+  }
+}
+
+
+
+mutation postBlog($title: String!, $content: String!) {
+  postBlog(title: $title, content: $content) {
+    id
+  }
+}
+
+mutation postComment($blogId: ID!, $comment: String!) {
+  postComment(blogId: $blogId, comment: $comment) {
+    id
+  }
+}
+
+mutation likeBlog($id: String!) {
+  likeBlog(id: $id)
+}
+
+mutation dislikeBlog($id: String!) {
+  dislikeBlog(id: $id)
+}

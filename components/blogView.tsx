@@ -51,7 +51,7 @@ const BlogView: FC<BlogViewProps> = ({ blog }) => {
   return (
     <article className="prose prose-invert mb-10">
       <h1 className="h1 py-3">
-        <Link href={`/blogs/${blog.title?.replaceAll(' ', '--')}`}>{blog.title}</Link>
+        <Link href={`/blogs/${blog.title?.replace(/\s/, '--')}`}>{blog.title}</Link>
       </h1>
 
       <Moment className="text-xs" format={defaultTimeFormat} date={blog.publishedAt} />

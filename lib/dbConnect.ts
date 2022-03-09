@@ -37,3 +37,6 @@ export const dbCollection = async (db: string, collection: string) => {
   const mongo = await dbConnect();
   return mongo.db(db).collection(collection);
 }
+
+export const blogsCollection = () => dbCollection('blogs', 'blogs');
+export const commentsCollection = () => dbCollection('blogs', 'comments');

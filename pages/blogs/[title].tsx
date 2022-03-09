@@ -21,7 +21,9 @@ export default BlogByTitlePage;
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
   const { title } = context.query;
 
-  const realTitle = (title + '').replaceAll('--', ' ');
+  const realTitle = typeof title === 'string'
+    ? title.replaceAll('--', ' ')
+    : '';
 
   const blogResult = await client.query<BlogQuery, BlogQueryVariables>({
     query: BlogDocument,

@@ -1,7 +1,12 @@
 import Cors from 'micro-cors';
 import { ApolloServer } from 'apollo-server-micro';
 import { typeDefs } from './graphql-schema';
-import { resolvers } from './resolvers';
+import { resolvers } from './_lib/resolvers/resolvers';
+import { apolloPlugins } from './plugin';
+
+// import { loader } from 'graphql.macro';
+// const typeDefs = loader('./schema.graphql');
+// console.log(typeDefs);
 
 export const config = {
   api: {
@@ -9,45 +14,20 @@ export const config = {
   }
 };
 
-const cors = Cors();
-
-const BASIC_LOGGING: any = {
-  requestDidStart(requestContext: any) {
-    const query = requestContext.request.query;
-    if (query.includes("IntrospectionQuery")) return;
-
-    console.log('QUERY: ', requestContext.request.query.split("\n")[0]);
-    console.log('        args:', requestContext.request.variables);
-    return {
-      didEncounterErrors(requestContext: any) {
-        console.log('an error happened in response to query ' + requestContext.request.query);
-        console.log(requestContext.errors);
-      }
-    };
-  },
-
-  willSendResponse(requestContext: any) {
-    // console.log("response sent", requestContext.response);
-  }
-};
-
-const plugins = process.env.NODE_ENV !== 'production'
-  ? [BASIC_LOGGING]
-  : [];
 
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
   context: ({ req }: any) => {
-
   },
   introspection: true,
-  // playground: true,
   debug: true,
-  plugins,
+  plugins: apolloPlugins,
 });
 
 const serversStart = apolloServer.start();
+
+const cors = Cors();
 
 export default cors(async (req: any, res: any) => {
   if (req.method === 'OPTIONS') {
@@ -61,4 +41,3 @@ export default cors(async (req: any, res: any) => {
   });
   await handler(req, res);
 });
-

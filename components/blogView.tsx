@@ -33,6 +33,8 @@ type BlogViewProps = {
 }
 
 const BlogView: FC<BlogViewProps> = ({ blog }) => {
+  console.log(blog);
+  
   const [likes, setLikes] = useState(blog.likes || 0);
   const [dislikes, setDislikes] = useState(blog.dislikes || 0);
 
